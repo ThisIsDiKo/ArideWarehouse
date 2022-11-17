@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Aride Warehouse</string>
+    <string name="username_hint">Имя пользователя</string>
+    <string name="password_hint">Пароль</string>
+    <string name="login">Войти</string>
+    <string name="search_hint">Поиск</string>
+    <string name="order_status">Статус</string>
+    <string name="info_order_user">Пользователь</string>
+    <string name="order_info_created_at">Загружен</string>
+    <string name="enter_comment_hint">Комментарий</string>
+    <string name="upload_to_server">Загрузить на сервер</string>
+
+    <string name="list_of_orders">Список заказов</string>
+    <string name="order_details">Детали заказа</string>
+    <string name="manual_enter">Вручную</string>
+    <string name="sort_hint">Сортировка</string>
+    <string name="clear_files">Очистить кэш</string>
+    <string name="logout">Выйти</string>
+    <string name="by_date">По дате создания</string>
+    <string name="by_order_name">По имени</string>
+
+    <string name="new_order">Новый</string>
+    <string name="published_order">Опубликован</string>
+
+    <string name="image_preview">Просмотр изображения</string>
+
+    <string name="ok">Ок</string>
+    <string name="cancel">Отмена</string>
+    <string name="order_number">Номер заказа</string>
+    <string name="enter_order_number">Введите номер заказа</string>
+
+    <string name="uploading_to_server">Загрузка на сервер</string>
+
+    <string name="unknown_server_error">Неизвестная ошбика сервера</string>
+
+    <string name="log_out_hint">Выйти из системы?</string>
+</resources>

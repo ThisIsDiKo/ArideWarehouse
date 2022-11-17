@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.scanner.CameraScannerFragment">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraScannerPreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <View
+        android:id="@+id/cameraScannerRect"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintHeight_percent="0.5"
+        app:layout_constraintWidth_percent="0.75"
+        android:background="@drawable/qr_rect"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <TextView
+        android:id="@+id/cameraScannerResultTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="2345345"
+        android:textColor="?attr/colorPrimary"
+        android:textSize="20sp"
+
+        app:layout_constraintBottom_toBottomOf="@id/cameraScannerRect"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageButton
+        android:id="@+id/cameraScanButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_baseline_qr_code_scanner_24"
+        android:background="@drawable/round_button"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/cameraScannerManualEnterButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/manual_enter"
+
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cameraScanButton"
+        app:layout_constraintBottom_toBottomOf="@id/cameraScanButton"
+        app:layout_constraintTop_toTopOf="@id/cameraScanButton"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

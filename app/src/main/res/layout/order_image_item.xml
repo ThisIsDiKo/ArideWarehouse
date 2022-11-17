@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/card_view"
+    android:layout_gravity="center"
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:layout_margin="8dp"
+    card_view:cardCornerRadius="8dp"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:clickable="true">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:src="@drawable/ic_baseline_add_100"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"/>
+
+        <ImageView
+            android:id="@+id/deleteImageBtn"
+            android:src="@drawable/ic_baseline_delete_24"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="4dp"
+            android:layout_gravity="end|top"
+            android:visibility="gone"
+            tools:visibility="visible"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"/>
+
+    </FrameLayout>
+
+</androidx.cardview.widget.CardView>
