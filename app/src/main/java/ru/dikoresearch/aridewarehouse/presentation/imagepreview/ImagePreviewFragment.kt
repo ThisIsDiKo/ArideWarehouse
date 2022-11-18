@@ -8,9 +8,10 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import com.bumptech.glide.Glide
+import androidx.viewpager2.widget.ViewPager2
 import ru.dikoresearch.aridewarehouse.R
 import ru.dikoresearch.aridewarehouse.databinding.FragmentImagePreviewBinding
+import ru.dikoresearch.aridewarehouse.presentation.utils.IMAGES_URLS_ARRAY
 import ru.dikoresearch.aridewarehouse.presentation.utils.IMAGE_URL
 import kotlin.properties.Delegates
 
@@ -18,8 +19,16 @@ class ImagePreviewFragment: Fragment(R.layout.fragment_image_preview) {
 
     private var binding: FragmentImagePreviewBinding by Delegates.notNull()
 
-    private val imageUrl: String by lazy {
-        arguments?.getString(IMAGE_URL, "Unknown") ?: "Unknown"
+    private val imagesUrls: List<String> by lazy {
+        arguments?.getStringArray(IMAGES_URLS_ARRAY)?.toList() ?: emptyList()
+    }
+
+    private val selectedImageUrl: String by lazy {
+        arguments?.getString(IMAGE_URL) ?: "000"
+    }
+
+    private val viewPagerAdapter: ImageViewPagerAdapter by lazy {
+        ImageViewPagerAdapter(imagesUrls)
     }
 
     override fun onCreateView(
@@ -31,13 +40,29 @@ class ImagePreviewFragment: Fragment(R.layout.fragment_image_preview) {
 
         binding.imagePreviewToolbar.setupWithNavController(findNavController(), AppBarConfiguration(findNavController().graph))
 
-        Glide.with(binding.imagePreviewView.context)
-            .load(imageUrl)
-            .fitCenter()
-            .placeholder(R.drawable.airbag_spinner)
-            .error(R.drawable.ic_icon_airbag)
-            .into(binding.imagePreviewView)
+        binding.imageViewPager.adapter = viewPagerAdapter
+        binding.imageViewPager.orientation = ViewPager2.ORIENTATION_HORIZONTAL
+
+        val index = imagesUrls.indexOf(selectedImageUrl)
+        binding.imageViewPager.currentItem = if (index < 0) 0 else index
+
+
+
+        binding.imageViewPager.registerOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback(){
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                }
+            }
+        )
 
         return binding.root
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding.imageViewPager.unregisterOnPageChangeCallback(
+            object : ViewPager2.OnPageChangeCallback() {}
+        )
     }
 }

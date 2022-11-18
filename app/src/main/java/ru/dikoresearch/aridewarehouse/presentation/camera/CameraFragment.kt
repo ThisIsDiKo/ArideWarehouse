@@ -42,7 +42,7 @@ class CameraFragment: Fragment(R.layout.fragment_camera) {
                 Log.e(TAG, "Got error $it")
             },
             onPictureTaken = {file, uri ->
-                Log.e(TAG, "Picture taken to ${file.absolutePath} uri is $uri")
+//                Log.e(TAG, "Picture taken to ${file.absolutePath} uri is $uri")
                 viewModel.addPicture(file.absolutePath)
 
             }
@@ -116,8 +116,8 @@ class CameraFragment: Fragment(R.layout.fragment_camera) {
 
     private fun showInfoDialog(){
         val dialogBuilder = AlertDialog.Builder(requireContext())
-        dialogBuilder.setTitle("Достигнут лимит фото заказа")
-        dialogBuilder.setPositiveButton("Ок"){dialogInterface, _ ->
+        dialogBuilder.setTitle(R.string.images_number_limit_reached)
+        dialogBuilder.setPositiveButton(R.string.ok){dialogInterface, _ ->
             dialogInterface.dismiss()
         }
         dialogBuilder.show()

@@ -34,4 +34,5 @@
     <string name="unknown_server_error">Неизвестная ошбика сервера</string>
 
     <string name="log_out_hint">Выйти из системы?</string>
+    <string name="images_number_limit_reached">"Достигнут лимит количества фото"</string>
 </resources>

@@ -2,14 +2,10 @@ package ru.dikoresearch.aridewarehouse.presentation.orderdetails
 
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -27,13 +23,9 @@ import ru.dikoresearch.aridewarehouse.databinding.FragmentOrderDetailsBinding
 import ru.dikoresearch.aridewarehouse.domain.entities.OrderImage
 import ru.dikoresearch.aridewarehouse.presentation.camera.CameraViewModel
 import ru.dikoresearch.aridewarehouse.presentation.utils.*
-import java.io.File
 import kotlin.properties.Delegates
 
 class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
-
-    private var imageUri: Uri by Delegates.notNull()
-    private var imagePath: String by Delegates.notNull()
 
     private var workManager: WorkManager by Delegates.notNull()
 
@@ -49,18 +41,20 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
     private val adapter: OrderImagesAdapter by lazy {
         OrderImagesAdapter(
             onAddImage = {
-                //takePicture(orderName)
                 val bundle = bundleOf(
                     ORDER_NAME to orderName,
                     ALLOWED_NUMBER_OF_IMAGES to viewModel.getAllowedNumberOfImages()
                 )
-                         findNavController().navigate(R.id.action_orderDetailsFragment_to_cameraFragment, bundle)
+                findNavController().navigate(R.id.action_orderDetailsFragment_to_cameraFragment, bundle)
             },
             onRemoveImage = {
                 viewModel.removeImage(it)
             },
             onImageClicked = {
-                val bundle = bundleOf(IMAGE_URL to it)
+                val bundle = bundleOf(
+                    IMAGE_URL to it,
+                    IMAGES_URLS_ARRAY to viewModel.getListOfImagesUrls()
+                )
                 findNavController().navigate(R.id.action_orderDetailsFragment_to_imagePreviewFragment, bundle)
             }
 
@@ -68,24 +62,6 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
     }
     private val orderName by lazy {
         arguments?.getString(ORDER_NAME, "Unknown") ?: "Unknown"
-    }
-
-    private val makePhoto = registerForActivityResult(ActivityResultContracts.TakePicture()){ result ->
-        result?.let{
-            if (it){
-                val imageName = imageUri.toString().split("/").last()
-                val image = OrderImage(
-                    imageName = imageName,
-                    loaded = false,
-                    imageUri = imagePath,
-                    newImageActionHolder = false
-                )
-                viewModel.addImage(image)
-            }
-            else {
-                Toast.makeText(requireActivity(), "Error while storing image", Toast.LENGTH_LONG).show()
-            }
-        }
     }
 
     override fun onCreateView(
@@ -195,25 +171,4 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
         }
     }
 
-    private fun takePicture(orderName: String){
-        val photoFile = File.createTempFile(
-            "IMG_${orderName}_",
-            ".jpeg",
-            requireContext().getExternalFilesDir(Environment.DIRECTORY_PICTURES)
-        )
-
-        imagePath = photoFile.absolutePath
-
-        imageUri = FileProvider.getUriForFile(
-            requireContext(),
-            "${requireContext().packageName}.provider",
-            photoFile
-        )
-
-        makePhoto.launch(imageUri)
-    }
-
-    companion object {
-        const val TAG = "Order Details Fragment"
-    }
 }

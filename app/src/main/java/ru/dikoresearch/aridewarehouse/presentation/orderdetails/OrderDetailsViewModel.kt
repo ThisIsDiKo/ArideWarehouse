@@ -77,6 +77,9 @@ class OrderDetailsViewModel @Inject constructor(
         }
     }
 
+    fun getListOfImagesUrls(): Array<String>{
+        return _listOfImages.value.filter { !it.newImageActionHolder }.map{it.imageUri}.toTypedArray()
+    }
     fun loadOrder(orderName: String){
         viewModelScope.launch {
             _showProgressBar.value = true
