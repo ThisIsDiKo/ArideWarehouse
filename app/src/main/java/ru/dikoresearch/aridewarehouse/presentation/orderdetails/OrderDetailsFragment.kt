@@ -21,9 +21,11 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import ru.dikoresearch.aridewarehouse.MainActivity
 import ru.dikoresearch.aridewarehouse.R
 import ru.dikoresearch.aridewarehouse.databinding.FragmentOrderDetailsBinding
 import ru.dikoresearch.aridewarehouse.domain.entities.OrderImage
+import ru.dikoresearch.aridewarehouse.presentation.camera.CameraViewModel
 import ru.dikoresearch.aridewarehouse.presentation.utils.*
 import java.io.File
 import kotlin.properties.Delegates
@@ -39,11 +41,20 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
         getAppComponent().viewModelFactory
     }
 
+    private val cameraViewModel: CameraViewModel by viewModels({activity as MainActivity }){
+        getAppComponent().viewModelFactory
+    }
+
     private var binding: FragmentOrderDetailsBinding by Delegates.notNull<FragmentOrderDetailsBinding>()
     private val adapter: OrderImagesAdapter by lazy {
         OrderImagesAdapter(
             onAddImage = {
-                takePicture(orderName)
+                //takePicture(orderName)
+                val bundle = bundleOf(
+                    ORDER_NAME to orderName,
+                    ALLOWED_NUMBER_OF_IMAGES to viewModel.getAllowedNumberOfImages()
+                )
+                         findNavController().navigate(R.id.action_orderDetailsFragment_to_cameraFragment, bundle)
             },
             onRemoveImage = {
                 viewModel.removeImage(it)
@@ -106,6 +117,26 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         viewModel.loadOrder(orderName)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val l = cameraViewModel.getImagesPaths()
+        Log.e("", "Got image paths from cameraViewModel: $l")
+        if (l.isNotEmpty()){
+            l.map {imagePath ->
+                val orderImage = OrderImage(
+                    imageName = imagePath.split("/").last(),
+                    imageUri = imagePath,
+                    loaded = false,
+                    newImageActionHolder = false
+                )
+                viewModel.addImage(orderImage)
+            }
+
+        }
+        cameraViewModel.refreshImagePaths()
+
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

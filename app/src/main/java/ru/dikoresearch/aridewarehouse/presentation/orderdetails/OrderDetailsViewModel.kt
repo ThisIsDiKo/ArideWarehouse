@@ -126,6 +126,11 @@ class OrderDetailsViewModel @Inject constructor(
         }
     }
 
+    fun getAllowedNumberOfImages(): Int{
+        val allowedNumber = 7 - _listOfImages.value.size
+       return allowedNumber
+    }
+
     fun addImage(image: OrderImage){
         val temp = _listOfImages.value.toMutableList()
         if (temp.size == 6){

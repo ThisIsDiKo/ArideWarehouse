@@ -19,6 +19,7 @@ import ru.dikoresearch.aridewarehouse.data.repository.WarehouseRepositoryImpl
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
 import ru.dikoresearch.aridewarehouse.data.repository.WarehouseService
 import ru.dikoresearch.aridewarehouse.domain.workers.WorkersFactory
+import ru.dikoresearch.aridewarehouse.presentation.camera.CameraViewModel
 import ru.dikoresearch.aridewarehouse.presentation.login.LogInViewModel
 import ru.dikoresearch.aridewarehouse.presentation.orderdetails.OrderDetailsViewModel
 import ru.dikoresearch.aridewarehouse.presentation.orderslist.OrdersListViewModel
@@ -142,6 +143,10 @@ interface AppBindsModule{
     @Binds
     @[IntoMap ViewModelKey(OrderDetailsViewModel::class)]
     fun provideOrderDetailsViewModel(orderDetailsViewModel: OrderDetailsViewModel): ViewModel
+
+    @Binds
+    @[IntoMap ViewModelKey(CameraViewModel::class)]
+    fun provideCameraViewModel(cameraViewModel: CameraViewModel): ViewModel
 
     @Binds
     fun bindViewModelFactory(factory: MultiViewModelFactory): ViewModelProvider.Factory

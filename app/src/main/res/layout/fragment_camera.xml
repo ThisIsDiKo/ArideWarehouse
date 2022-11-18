@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".presentation.scanner.CameraScannerFragment">
+
+    <androidx.camera.view.PreviewView
+        android:id="@+id/cameraPreview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+
+    <ImageButton
+        android:id="@+id/cameraCaptureImageButton"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_baseline_camera_alt_24"
+        android:background="@drawable/round_button"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp"/>
+
+    <TextView
+        android:id="@+id/cameraImagesNumTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="1"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:textColor="@color/grey_light"
+
+        app:layout_constraintTop_toTopOf="@id/cameraCaptureImageButton"
+        app:layout_constraintBottom_toBottomOf="@id/cameraCaptureImageButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/cameraCaptureImageButton"/>
+
+    <Button
+        android:id="@+id/cameraOkBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/ok"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cameraCaptureImageButton"
+        app:layout_constraintBottom_toBottomOf="@id/cameraCaptureImageButton"
+        app:layout_constraintTop_toTopOf="@id/cameraCaptureImageButton"/>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,6 +14,7 @@
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/drawable/qr_rect.xml" value="0.2295" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/drawable/round_button.xml" value="0.208" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/activity_main.xml" value="0.358695652173913" />
+        <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_camera.xml" value="0.36666666666666664" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_camera_scanner.xml" value="0.30480072463768115" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_image_preview.xml" value="0.2341485507246377" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_login.xml" value="0.358695652173913" />
