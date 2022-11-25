@@ -18,8 +18,9 @@
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_camera_scanner.xml" value="0.30480072463768115" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_image_preview.xml" value="0.2341485507246377" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_login.xml" value="0.358695652173913" />
-        <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_order_details.xml" value="0.25" />
+        <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_order_details.xml" value="0.22641509433962265" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/fragment_orders_list.xml" value="0.3" />
+        <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/order_goods_item.xml" value="0.33" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/order_image_item.xml" value="0.21614583333333334" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/order_list_item.xml" value="0.358695652173913" />
         <entry key="..\:/AndroidProjects/ArideWarehouse/app/src/main/res/layout/viewpager_image_item.xml" value="0.36666666666666664" />

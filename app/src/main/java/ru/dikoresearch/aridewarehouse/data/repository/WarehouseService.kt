@@ -2,11 +2,13 @@ package ru.dikoresearch.aridewarehouse.data.repository
 
 import okhttp3.MultipartBody
 import retrofit2.http.*
+import ru.dikoresearch.aridewarehouse.domain.entities.OrderFullInfo
 import ru.dikoresearch.aridewarehouse.domain.entities.OrderInfo
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.LoginRequest
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.OrderCreateRequest
 import ru.dikoresearch.aridewarehouse.domain.repository.responses.ListOfOrdersResponse
 import ru.dikoresearch.aridewarehouse.domain.repository.responses.LoginResponse
+import ru.dikoresearch.aridewarehouse.domain.repository.responses.OrderFullInfoResponse
 
 interface WarehouseService {
 
@@ -20,10 +22,10 @@ interface WarehouseService {
     suspend fun getOrderById(@Path("id") orderId: Int): OrderInfo
 
     @GET("orders/name/{name}")
-    suspend fun getOrderByName(@Path("name") orderName: String): OrderInfo
+    suspend fun getOrderByName(@Path("name") orderName: String): OrderFullInfo
 
     @POST("orders/new")
-    suspend fun createNewOrder(@Body newOrder: OrderCreateRequest): OrderInfo
+    suspend fun createNewOrder(@Body orderFullInfo: OrderFullInfo): OrderFullInfo
 
     @POST("orders/uploadImage")
     @Multipart

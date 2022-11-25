@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
@@ -14,6 +15,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.WorkManager
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -60,6 +62,16 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
 
         )
     }
+
+    private val goodsAdapter: OrderGoodsAdapter by lazy {
+        OrderGoodsAdapter(
+            onCheckedChanged = {index, state ->
+                Log.e("Order Details Fragment", "Good in position $index check is $state")
+                viewModel.setCheckedStateToGoods(index, state)
+            }
+        )
+    }
+
     private val orderName by lazy {
         arguments?.getString(ORDER_NAME, "Unknown") ?: "Unknown"
     }
@@ -79,12 +91,20 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
         binding.orderImagesRecyclerView.layoutManager = layoutManager
         binding.orderImagesRecyclerView.adapter = adapter
 
+        val goodsLayoutManger = LinearLayoutManager(requireActivity())
+        binding.orderGoodsRecyclerView.layoutManager = goodsLayoutManger
+        binding.orderGoodsRecyclerView.adapter = goodsAdapter
+
         binding.orderUploadToServerBtn.setOnClickListener {
             viewModel.uploadToServer(
                 orderName = orderName,
                 comment = binding.orderCommentEditTextView.text.toString(),
                 workManager = workManager
             )
+        }
+
+        binding.orderCommentEditTextView.addTextChangedListener {
+            viewModel.updateComment(it.toString())
         }
 
         return binding.root
@@ -112,6 +132,10 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
 
         }
         cameraViewModel.refreshImagePaths()
+
+        if (viewModel.orderDetailsState.value.comment.isNotBlank()){
+            binding.orderCommentEditTextView.setText(viewModel.orderDetailsState.value.comment)
+        }
 
     }
 
@@ -153,9 +177,14 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
                     binding.orderNameTextView.text = state.orderName
                     binding.orderUsernameTextView.text = state.username
                     binding.orderCreatedAtTextView.text = state.createdAt
-                    binding.orderCommentEditTextView.setText(state.comment)
+                    //binding.orderCommentEditTextView.setText(state.comment)
 
-                    binding.orderUploadToServerBtn.isEnabled = state.hasImagesToUpload
+
+
+                    val enableUploadButton = state.hasImagesToUpload && state.allGoodsChecked
+                    binding.orderUploadToServerBtn.isEnabled = enableUploadButton
+
+                    Log.e("", "Got new state $state")
 
                     if (state.status != "New"){
                         binding.orderCommentEditTextView.isEnabled = false
@@ -166,6 +195,12 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
             launch {
                 viewModel.listOfImages.collectLatest {
                     adapter.listOfImages = it
+                }
+            }
+
+            launch {
+                viewModel.listOfGoods.collectLatest {
+                    goodsAdapter.listOfGoods = it
                 }
             }
         }

@@ -9,6 +9,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import ru.dikoresearch.aridewarehouse.domain.entities.OrderFullInfo
 import ru.dikoresearch.aridewarehouse.domain.entities.OrderInfo
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
@@ -41,18 +42,17 @@ class WarehouseRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOrderByName(orderName: String): RequestResult<OrderInfo> {
+    override suspend fun getOrderByName(orderName: String): RequestResult<OrderFullInfo> {
         return safeCallApi(dispatcher){
             warehouseService.getOrderByName(orderName)
         }
     }
 
     override suspend fun createNewOrder(
-        orderName: String,
-        comment: String
-    ): RequestResult<OrderInfo> {
+        orderFullInfo: OrderFullInfo
+    ): RequestResult<OrderFullInfo> {
         return safeCallApi(dispatcher){
-            warehouseService.createNewOrder(OrderCreateRequest(orderName=orderName, comment=comment))
+            warehouseService.createNewOrder(orderFullInfo)
         }
     }
 

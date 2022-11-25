@@ -154,16 +154,103 @@
             android:hint="@string/enter_comment_hint"
             android:inputType="textMultiLine"
             android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"/>
+            android:layout_marginEnd="16dp"
+            android:textSize="14sp"/>
     </androidx.cardview.widget.CardView>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/orderGoodsCardView"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintTop_toBottomOf="@id/orderCommentCardView"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_margin="4dp"
+        card_view:cardCornerRadius="8dp"
+        android:clickable="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start|top"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/orderGoodsTableColumnsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/goodsTableArt"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:text="Арт"
+                    android:textAlignment="center"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_margin="4dp"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:id="@+id/goodsTableName"
+                    android:layout_width="250dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    card_view:layout_constraintStart_toEndOf="@id/goodsTableArt"
+                    card_view:layout_constraintEnd_toStartOf="@id/goodsTableQuantity"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_margin="4dp"
+                    android:textSize="12sp"
+                    android:text="Наименование"/>
+
+                <TextView
+                    android:id="@+id/goodsTableQuantity"
+                    android:layout_width="20dp"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintEnd_toStartOf="@id/goodsTableCheck"
+                    android:layout_margin="4dp"
+                    android:textSize="12sp"
+                    android:text="К-о"
+                    />
+
+                <TextView
+                    android:id="@+id/goodsTableCheck"
+                    android:layout_width="48dp"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="2dp"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    card_view:layout_constraintBottom_toBottomOf="parent"/>
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/orderGoodsRecyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:listitem="@layout/order_goods_item"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/orderImagesRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/orderCommentCardView"
+        app:layout_constraintTop_toBottomOf="@id/orderGoodsCardView"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_margin="4dp"/>
+        android:layout_margin="4dp" />
+
+
 
     <Button
         android:id="@+id/orderUploadToServerBtn"
