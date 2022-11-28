@@ -1,6 +1,8 @@
 package ru.dikoresearch.aridewarehouse.presentation.orderdetails
 
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.*
@@ -37,7 +39,34 @@ class OrderDetailsViewModel @Inject constructor(
     private val _listOfGoods = MutableStateFlow(emptyList<OrderGoodsAdapterModel>())
     val listOfGoods: StateFlow<List<OrderGoodsAdapterModel>> = _listOfGoods.asStateFlow()
 
+    private var workInfoLiveData: LiveData<List<WorkInfo>>? = null
+    private val workInfoObserver: Observer<List<WorkInfo>> = Observer{ l ->
+        if (l.size == 1){
+            when(l.first().state){
+                WorkInfo.State.SUCCEEDED -> {
+                    _showProgressBar.value = false
+                }
+                WorkInfo.State.FAILED -> {
+                    _showProgressBar.value = false
+                }
+                WorkInfo.State.CANCELLED -> {
+                    _showProgressBar.value = false
+                }
+                else -> {
+
+                }
+            }
+
+        }
+
+    }
+
     private var orderFullInfo: OrderFullInfo by Delegates.notNull()
+
+    override fun onCleared() {
+        super.onCleared()
+        workInfoLiveData?.removeObserver(workInfoObserver)
+    }
 
     fun uploadToServer(orderName: String, comment: String, workManager: WorkManager){
         viewModelScope.launch {
@@ -132,8 +161,6 @@ class OrderDetailsViewModel @Inject constructor(
                     else {
                         ""
                     }
-                    //val date = result.value.createdAt.getFormattedDateFromDataBaseDate()
-                    Log.e("Order Details Vew Model", "Got result: ${result.value}")
                     orderFullInfo = result.value
                     _orderDetailsState.value = OrderDetailsState(
                         orderId = result.value.orderId,
@@ -144,7 +171,6 @@ class OrderDetailsViewModel @Inject constructor(
                         comment = result.value.comment,
                         allGoodsChecked = result.value.checked > 0
                     )
-//                    _listOfGoods.value = result.value.goods.toList()
                     _listOfGoods.value = result.value.goods.map {
                         OrderGoodsAdapterModel(
                             goods = it,
@@ -164,7 +190,6 @@ class OrderDetailsViewModel @Inject constructor(
                     }
                 }
                 is RequestResult.Error -> {
-                    Log.e("Order Details Vew Model", "Unexpected error: ${result.code} -> ${result.errorCause}")
                     if (result.code == 401){
                         _navigationEvent.send(NavigationEvent.Navigate("Login"))
                     }
@@ -240,10 +265,6 @@ class OrderDetailsViewModel @Inject constructor(
 
     private fun checkIfThereIsImagesToUpload(): Boolean {
 
-//        val isAllChecked = _listOfGoods.value.all { it.isChecked }
-//        Log.e("", "Checking is checked states: ${_listOfGoods.value}")
-//
-//        _orderDetailsState.value = orderDetailsState.value.copy(allGoodsChecked = isAllChecked)
 
         val notUploadedImages = _listOfImages.value.filter { !it.loaded && !it.newImageActionHolder}
         if (notUploadedImages.isEmpty()){
@@ -280,27 +301,17 @@ class OrderDetailsViewModel @Inject constructor(
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .build()
 
-        val operation = workManager.enqueueUniqueWork(
+        workManager.enqueueUniqueWork(
             "UniqueImageUploadWorker",
             ExistingWorkPolicy.KEEP,
             worker
-        ).result
-
-        operation.addListener(
-            {
-                if (operation.isDone){
-                    Log.e("dd", "Worker Upload completed successfully")
-                    setAllImagesLoaded()
-                }
-                else {
-                    Log.e("dd", "Worker Upload failed")
-                }
-                _showProgressBar.value = false
-            },
-            {
-                it.run()
-            }
         )
+
+        workInfoLiveData = workManager.getWorkInfosForUniqueWorkLiveData("UniqueImageUploadWorker")
+        workInfoLiveData?.observeForever(
+            workInfoObserver
+        )
+
 
     }
 

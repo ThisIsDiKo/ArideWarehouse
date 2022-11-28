@@ -75,13 +75,6 @@ class ImageUploadWorker(
             val images = inputData.getStringArray(WORKER_IMAGES_ARRAY_KEY) ?: throw IllegalStateException("Images Array must not be null")
 
             images.forEach { imageUri ->
-                Log.d(TAG, "Uploading image $imageUri")
-
-//                val path = applicationContext.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString() + "/"+ Uri.parse(imageUri).lastPathSegment
-//                val inputStream = inputStreamFor(applicationContext, imageUri)
-//                val bitmap = BitmapFactory.decodeStream(inputStream)
-//
-//                val exif = ExifInterface(path)
 
                 val bitmap = BitmapFactory.decodeFile(imageUri)
                 val exif = ExifInterface(imageUri)
@@ -129,22 +122,5 @@ class ImageUploadWorker(
 
         const val WORKER_OUTPUT_DATA_SUCCESS = "SUCCESS"
 
-        private const val ASSET_PREFIX = "file:///android_asset/"
-        private fun inputStreamFor(
-            context: Context,
-            resourceUri: String
-        ): InputStream? {
-
-            // If the resourceUri is an Android asset URI, then use AssetManager to get a handle to
-            // the input stream. (Stock Images are Asset URIs).
-            return if (resourceUri.startsWith(ASSET_PREFIX)) {
-                val assetManager = context.resources.assets
-                assetManager.open(resourceUri.substring(ASSET_PREFIX.length))
-            } else {
-                // Not an Android asset Uri. Use a ContentResolver to get a handle to the input stream.
-                val resolver = context.contentResolver
-                resolver.openInputStream(Uri.parse(resourceUri))
-            }
-        }
     }
 }

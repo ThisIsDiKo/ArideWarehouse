@@ -33,6 +33,7 @@ class WarehouseRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
+        //Maybe we need to send information to server
         sharedPreferences.setToken(token = "", username = "")
     }
 

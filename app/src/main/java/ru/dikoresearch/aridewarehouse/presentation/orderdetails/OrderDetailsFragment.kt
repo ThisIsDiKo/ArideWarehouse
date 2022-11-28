@@ -1,6 +1,6 @@
 package ru.dikoresearch.aridewarehouse.presentation.orderdetails
 
-import android.net.Uri
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -39,7 +39,7 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
         getAppComponent().viewModelFactory
     }
 
-    private var binding: FragmentOrderDetailsBinding by Delegates.notNull<FragmentOrderDetailsBinding>()
+    private var binding: FragmentOrderDetailsBinding by Delegates.notNull()
     private val adapter: OrderImagesAdapter by lazy {
         OrderImagesAdapter(
             onAddImage = {
