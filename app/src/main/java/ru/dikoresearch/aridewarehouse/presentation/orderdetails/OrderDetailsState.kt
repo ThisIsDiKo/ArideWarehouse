@@ -1,7 +1,5 @@
 package ru.dikoresearch.aridewarehouse.presentation.orderdetails
 
-import ru.dikoresearch.aridewarehouse.domain.entities.ArideGoods
-
 data class OrderDetailsState(
     val orderId: Int = -1,
     val orderName: String = "Unknown",

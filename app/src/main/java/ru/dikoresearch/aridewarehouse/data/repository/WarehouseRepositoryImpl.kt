@@ -9,12 +9,10 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
-import ru.dikoresearch.aridewarehouse.domain.entities.OrderFullInfo
-import ru.dikoresearch.aridewarehouse.domain.entities.OrderInfo
+import ru.dikoresearch.aridewarehouse.domain.entities.Order
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.LoginRequest
-import ru.dikoresearch.aridewarehouse.domain.repository.requests.OrderCreateRequest
 import ru.dikoresearch.aridewarehouse.domain.repository.responses.ListOfOrdersResponse
 import ru.dikoresearch.aridewarehouse.presentation.utils.setToken
 import java.io.ByteArrayOutputStream
@@ -43,15 +41,15 @@ class WarehouseRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOrderByName(orderName: String): RequestResult<OrderFullInfo> {
+    override suspend fun getOrderByName(orderName: String): RequestResult<Order> {
         return safeCallApi(dispatcher){
             warehouseService.getOrderByName(orderName)
         }
     }
 
     override suspend fun createNewOrder(
-        orderFullInfo: OrderFullInfo
-    ): RequestResult<OrderFullInfo> {
+        orderFullInfo: Order
+    ): RequestResult<Order> {
         return safeCallApi(dispatcher){
             warehouseService.createNewOrder(orderFullInfo)
         }
@@ -86,10 +84,15 @@ class WarehouseRepositoryImpl @Inject constructor(
                 RequestResult.Success(call.invoke())
             }
             catch(e: HttpException){
-                RequestResult.Error(code = e.code(), errorCause = e.message)
+                if (e.code() == 401){
+                    RequestResult.Unauthorized
+                }
+                else {
+                    RequestResult.HttpError(code = e.code(), errorCause = e.message() ?: "")
+                }
             }
             catch (e: Exception){
-                RequestResult.Error(code = null, errorCause = e.message)
+                RequestResult.UnknownError(errorCause = e.message ?: "Unknown error")
             }
         }
     }

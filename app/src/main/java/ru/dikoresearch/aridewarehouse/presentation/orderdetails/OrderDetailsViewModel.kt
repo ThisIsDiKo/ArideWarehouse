@@ -9,12 +9,13 @@ import androidx.work.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import ru.dikoresearch.aridewarehouse.domain.entities.ArideGoods
-import ru.dikoresearch.aridewarehouse.domain.entities.OrderFullInfo
+import ru.dikoresearch.aridewarehouse.domain.entities.Order
 import ru.dikoresearch.aridewarehouse.domain.entities.OrderImage
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
 import ru.dikoresearch.aridewarehouse.domain.workers.ImageUploadWorker
+import ru.dikoresearch.aridewarehouse.presentation.utils.BASE_URL_IMAGES
+import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationConstants
 import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationEvent
 import ru.dikoresearch.aridewarehouse.presentation.utils.getFormattedDateFromDataBaseDate
 import javax.inject.Inject
@@ -42,12 +43,22 @@ class OrderDetailsViewModel @Inject constructor(
     private var workInfoLiveData: LiveData<List<WorkInfo>>? = null
     private val workInfoObserver: Observer<List<WorkInfo>> = Observer{ l ->
         if (l.size == 1){
-            when(l.first().state){
+            val workInfo = l.first()
+            when(workInfo.state){
                 WorkInfo.State.SUCCEEDED -> {
                     _showProgressBar.value = false
+                    setAllImagesLoaded()
                 }
                 WorkInfo.State.FAILED -> {
                     _showProgressBar.value = false
+                    val outputResult = workInfo.outputData
+                        .getString(ImageUploadWorker.WORKER_OUTPUT_DATA_KEY) ?: "Empty message"
+
+                    viewModelScope.launch {
+                        _navigationEvent.send(
+                            NavigationEvent.ShowToast(outputResult)
+                        )
+                    }
                 }
                 WorkInfo.State.CANCELLED -> {
                     _showProgressBar.value = false
@@ -61,14 +72,14 @@ class OrderDetailsViewModel @Inject constructor(
 
     }
 
-    private var orderFullInfo: OrderFullInfo by Delegates.notNull()
+    private var orderFullInfo: Order by Delegates.notNull()
 
     override fun onCleared() {
         super.onCleared()
         workInfoLiveData?.removeObserver(workInfoObserver)
     }
 
-    fun uploadToServer(orderName: String, comment: String, workManager: WorkManager){
+    fun uploadToServer(comment: String, workManager: WorkManager){
         viewModelScope.launch {
             if (!checkIfThereIsImagesToUpload()){
                 return@launch
@@ -81,54 +92,27 @@ class OrderDetailsViewModel @Inject constructor(
                     comment = comment,
                     checked = 1
                 )
+
                 val result = warehouseRepository.createNewOrder(orderToSend)
                 when(result){
                     is RequestResult.Success -> {
-                        val date = if (result.value.createdAt.isNotBlank()){
-                            try {
-                                result.value.createdAt.getFormattedDateFromDataBaseDate()
-                            }
-                            catch (e: Exception){
-                                ""
-                            }
-                        }
-                        else {
-                            ""
-                        }
-                        //val date = result.value.createdAt.getFormattedDateFromDataBaseDate()
-                        Log.e("Order Details Vew Model", "Got result: ${result.value}")
-                        orderFullInfo = result.value
-                        _orderDetailsState.value = OrderDetailsState(
-                            orderId = result.value.orderId,
-                            orderName = result.value.orderName,
-                            username = result.value.username,
-                            status = result.value.status,
-                            createdAt = date,
-                            comment = result.value.comment
-                        )
-
-                        _listOfGoods.value = result.value.goods.map {
-                            OrderGoodsAdapterModel(
-                                goods = it,
-                                isChecked = result.value.checked > 0,
-                                isLoaded = result.value.checked > 0
-                            )
-                        }
-
+                        updateStateViewOrder(result.value)
+                        updateListOfGoodsWithOrder(result.value)
                         startUpload(result.value.orderId, workManager)
                     }
-                    is RequestResult.Error -> {
-                        Log.e("Order Details View Model", "Unexpected error: ${result.code} -> ${result.errorCause}")
-                        if (result.code == 401){
-                            _navigationEvent.send(NavigationEvent.Navigate("Login"))
-                        }
-                        else if (result.code != null) {
-                            _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code}"))
-                        }
-                        else {
-                            _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
-                        }
+                    is RequestResult.Unauthorized -> {
+                        _navigationEvent.send(NavigationEvent.Navigate(NavigationConstants.LOGIN_SCREEN))
                         _showProgressBar.value = false
+                    }
+                    is RequestResult.HttpError -> {
+                        _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code}"))
+                        _showProgressBar.value = false
+
+                    }
+                    is RequestResult.UnknownError -> {
+                        _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
+                        _showProgressBar.value = false
+
                     }
                 }
             }
@@ -140,8 +124,9 @@ class OrderDetailsViewModel @Inject constructor(
     }
 
     fun getListOfImagesUrls(): Array<String>{
-        return _listOfImages.value.filter { !it.newImageActionHolder }.map{it.imageUri}.toTypedArray()
+        return listOfImages.value.filter { !it.newImageActionHolder }.map{it.imageUri}.toTypedArray()
     }
+
     fun loadOrder(orderName: String){
         viewModelScope.launch {
             _showProgressBar.value = true
@@ -150,58 +135,24 @@ class OrderDetailsViewModel @Inject constructor(
 
             when(result){
                 is RequestResult.Success -> {
-                    val date = if (result.value.createdAt.isNotBlank()){
-                        try {
-                            result.value.createdAt.getFormattedDateFromDataBaseDate()
-                        }
-                        catch (e: Exception){
-                            ""
-                        }
-                    }
-                    else {
-                        ""
-                    }
-                    orderFullInfo = result.value
-                    _orderDetailsState.value = OrderDetailsState(
-                        orderId = result.value.orderId,
-                        orderName = result.value.orderName,
-                        username = result.value.username,
-                        status = result.value.status,
-                        createdAt = date,
-                        comment = result.value.comment,
-                        allGoodsChecked = result.value.checked > 0
-                    )
-                    _listOfGoods.value = result.value.goods.map {
-                        OrderGoodsAdapterModel(
-                            goods = it,
-                            isChecked = result.value.checked > 0,
-                            isLoaded = result.value.checked > 0
-                        )
-                    }
-
-                    result.value.images.forEach {
-                        val image = OrderImage(
-                            imageName = it.split("/").last(),
-                            loaded = true,
-                            imageUri = "http://172.16.1.54:8080/orders/image/$it",
-                            newImageActionHolder = false
-                        )
-                        addImage(image)
-                    }
+                    updateStateViewOrder(result.value)
+                    updateListOfGoodsWithOrder(result.value)
+                    updateImagesListWithOrder(result.value)
                 }
-                is RequestResult.Error -> {
-                    if (result.code == 401){
-                        _navigationEvent.send(NavigationEvent.Navigate("Login"))
-                    }
-                    else if (result.code != null) {
-                        _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code}"))
-                    }
-                    else {
-                        _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
-                    }
+                is RequestResult.Unauthorized -> {
+                    _navigationEvent.send(NavigationEvent.Navigate(NavigationConstants.LOGIN_SCREEN))
+                }
+                is RequestResult.HttpError -> {
                     _orderDetailsState.value = orderDetailsState.value.copy(
                         orderName = orderName
                     )
+                    _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code}"))
+                }
+                is RequestResult.UnknownError -> {
+                    _orderDetailsState.value = orderDetailsState.value.copy(
+                        orderName = orderName
+                    )
+                    _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
                 }
             }
 
@@ -213,9 +164,9 @@ class OrderDetailsViewModel @Inject constructor(
         _orderDetailsState.value = _orderDetailsState.value.copy(comment = text)
     }
 
-    fun getAllowedNumberOfImages(): Int{
-        val allowedNumber = 3 + 1 - _listOfImages.value.size
-       return allowedNumber
+    fun getAllowedNumberOfImages(): Int {
+        val maxNumOfImages = 3
+        return maxNumOfImages + 1 - _listOfImages.value.size
     }
 
     fun addImage(image: OrderImage){
@@ -263,9 +214,50 @@ class OrderDetailsViewModel @Inject constructor(
         _orderDetailsState.value = orderDetailsState.value.copy(allGoodsChecked = isAllChecked)
     }
 
+    private fun updateStateViewOrder(order: Order){
+        val date = try {
+            order.createdAt.getFormattedDateFromDataBaseDate()
+        }
+        catch (e: Exception){
+            ""
+        }
+
+        orderFullInfo = order.copy()
+
+        _orderDetailsState.value = OrderDetailsState(
+            orderId = order.orderId,
+            orderName = order.orderName,
+            username = order.username,
+            status = order.status,
+            createdAt = date,
+            comment = order.comment,
+            allGoodsChecked = order.checked > 0
+        )
+    }
+
+    private fun updateListOfGoodsWithOrder(order: Order){
+        _listOfGoods.value = order.goods.map {
+            OrderGoodsAdapterModel(
+                goods = it,
+                isChecked = order.checked > 0,
+                isLoaded = order.checked > 0
+            )
+        }
+    }
+
+    private fun updateImagesListWithOrder(order: Order){
+        order.images.forEach {
+            val image = OrderImage(
+                imageName = it.split("/").last(),
+                loaded = true,
+                imageUri = "$BASE_URL_IMAGES$it",
+                newImageActionHolder = false
+            )
+            addImage(image)
+        }
+    }
+
     private fun checkIfThereIsImagesToUpload(): Boolean {
-
-
         val notUploadedImages = _listOfImages.value.filter { !it.loaded && !it.newImageActionHolder}
         if (notUploadedImages.isEmpty()){
             return false

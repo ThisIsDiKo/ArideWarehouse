@@ -39,9 +39,6 @@ class CameraScannerFragment: Fragment(R.layout.fragment_camera_scanner) {
             imageAnalyzer = qrCodeAnalyzer,
             onError = {
                 Log.e(TAG, "Got error $it")
-            },
-            onBarCodeDetected = {
-                binding.cameraScannerResultTextView.text = it
             }
         )
     }

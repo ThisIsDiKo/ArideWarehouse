@@ -1,6 +1,5 @@
 package ru.dikoresearch.aridewarehouse.presentation.orderslist
 
-import android.util.Log
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,6 +9,7 @@ import kotlinx.coroutines.launch
 import ru.dikoresearch.aridewarehouse.domain.entities.OrdersListItem
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
+import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationConstants
 import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationEvent
 import ru.dikoresearch.aridewarehouse.presentation.utils.ORDER_NAME
 import java.io.File
@@ -36,9 +36,9 @@ class OrdersListViewModel @Inject constructor(
            viewModelScope.launch {
                _showProgressBar.value = true
 
+               //TODO think about providing context
                val directoryWithPictures = File("sdcard/Android/data/ru.dikoresearch.aridewarehouse/files/Pictures")
                val result = directoryWithPictures.deleteRecursively()
-
 
                _navigationEvent.send(
                    NavigationEvent.ShowToast(if(result) "Изображения успешно удалены" else "Ошибка при удалении изображений")
@@ -56,9 +56,7 @@ class OrdersListViewModel @Inject constructor(
 
             when(result){
                 is RequestResult.Success -> {
-
                     loadedListOfOrders = result.value.orders.map { orderInfo ->
-
                         OrdersListItem(
                             orderId = orderInfo.orderId,
                             orderName = orderInfo.orderName,
@@ -67,21 +65,16 @@ class OrdersListViewModel @Inject constructor(
                             createdAt = orderInfo.createdAt
                         )
                     }
-
                     _listOfOrders.value = loadedListOfOrders
                 }
-                is RequestResult.Error -> {
-                    Log.e(TAG, "Unexpected error: ${result.code} -> ${result.errorCause}")
-                    if (result.code == 401){
-                        _navigationEvent.send(NavigationEvent.Navigate("Login"))
-                    }
-                    else if (result.code != null){
-                        _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code}"))
-                    }
-                    else {
-                        _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
-                    }
-
+                is RequestResult.Unauthorized -> {
+                    _navigationEvent.send(NavigationEvent.Navigate(NavigationConstants.LOGIN_SCREEN))
+                }
+                is RequestResult.HttpError -> {
+                    _navigationEvent.send(NavigationEvent.ShowToast("Server Error ${result.code} ${result.errorCause}"))
+                }
+                is RequestResult.UnknownError -> {
+                    _navigationEvent.send(NavigationEvent.ShowToast("Unknown Error ${result.errorCause}"))
                 }
             }
         }
@@ -90,14 +83,14 @@ class OrdersListViewModel @Inject constructor(
     fun logout(){
         viewModelScope.launch {
             warehouseRepository.logout()
-            _navigationEvent.send(NavigationEvent.Navigate("Login"))
+            _navigationEvent.send(NavigationEvent.Navigate(NavigationConstants.LOGIN_SCREEN))
         }
     }
 
     fun showOrderDetails(orderName: String){
         viewModelScope.launch {
             _navigationEvent.send(
-                NavigationEvent.Navigate("Details", bundleOf(ORDER_NAME to orderName))
+                NavigationEvent.Navigate(NavigationConstants.DETAILS_SCREEN, bundleOf(ORDER_NAME to orderName))
             )
         }
     }
@@ -122,9 +115,5 @@ class OrdersListViewModel @Inject constructor(
         _listOfOrders.value = loadedListOfOrders.sortedByDescending {
             LocalDateTime.parse(it.createdAt)
         }
-    }
-
-    companion object {
-        const val TAG = "List of orders View Model"
     }
 }

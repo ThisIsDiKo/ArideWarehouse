@@ -1,6 +1,9 @@
 package ru.dikoresearch.aridewarehouse.domain.entities
 
-data class ArideGoods(
+import com.google.gson.annotations.SerializedName
+
+data class RemoteGoods(
+    @SerializedName("art")
     val art: String,
     val name: String,
     val count: String,

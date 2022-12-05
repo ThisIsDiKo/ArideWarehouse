@@ -22,7 +22,7 @@ class CameraViewModel @Inject constructor(
 
     fun flushImagesPathsBuffer(){
         imagesPaths.addAll(imagesPathsBuffer)
-        imagesPathsBuffer.clear()
+//        imagesPathsBuffer.clear()
         _cameraScreenState.value = _cameraScreenState.value.copy(numberOfCapturedImages = imagesPathsBuffer.size, isOkBtnEnabled = false)
     }
 

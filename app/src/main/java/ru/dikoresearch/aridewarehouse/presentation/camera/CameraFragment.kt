@@ -41,10 +41,8 @@ class CameraFragment: Fragment(R.layout.fragment_camera) {
             onError = {
                 Log.e(TAG, "Got error $it")
             },
-            onPictureTaken = {file, uri ->
-//                Log.e(TAG, "Picture taken to ${file.absolutePath} uri is $uri")
+            onPictureTaken = {file, _ ->
                 viewModel.addPicture(file.absolutePath)
-
             }
         )
     }
@@ -70,7 +68,6 @@ class CameraFragment: Fragment(R.layout.fragment_camera) {
         binding = FragmentCameraBinding.inflate(inflater, container, false)
 
         binding.cameraOkBtn.setOnClickListener {
-            Log.e(TAG, "Btn return camera clicked")
             viewModel.flushImagesPathsBuffer()
             findNavController().navigateUp()
         }
@@ -126,5 +123,4 @@ class CameraFragment: Fragment(R.layout.fragment_camera) {
     companion object {
         const val TAG = "Camera Multi Capture Fragment"
     }
-
 }

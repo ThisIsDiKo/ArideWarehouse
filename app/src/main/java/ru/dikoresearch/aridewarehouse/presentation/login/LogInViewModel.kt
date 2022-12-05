@@ -1,7 +1,6 @@
 package ru.dikoresearch.aridewarehouse.presentation.login
 
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -9,6 +8,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
+import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationConstants
 import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationEvent
 import ru.dikoresearch.aridewarehouse.presentation.utils.WAREHOUSE_TOKEN
 import ru.dikoresearch.aridewarehouse.presentation.utils.WAREHOUSE_USERNAME
@@ -47,32 +47,29 @@ class LogInViewModel @Inject constructor(
 
 
                     _navigationEvent.send(
-                        NavigationEvent.Navigate("ListFragment")
+                        NavigationEvent.Navigate(NavigationConstants.ORDERS_LIST_SCREEN)
                     )
 
                 }
-                is RequestResult.Error -> {
-                    if (result.code != null){
-                        Log.e(TAG, "Http error: ${result.code} -> ${result.errorCause}")
-                        _navigationEvent.send(
-                            NavigationEvent.ShowToast("Server error: ${result.code}")
-                        )
-                        result.errorCause?.let {
-                            _errorMessage.value = it
-                        }
+                is RequestResult.Unauthorized -> {
+
+                }
+                is RequestResult.HttpError -> {
+                    if (result.code == 404){
+                        _errorMessage.value = "Неверное имя пользователя или пароль"
                     }
                     else {
-                        Log.e(TAG, "Unknown error: ${result.errorCause}")
                         _navigationEvent.send(
-                            NavigationEvent.ShowToast("Unknown Server Error")
+                            NavigationEvent.ShowToast("Server error ${result.code}")
                         )
                     }
                 }
+                is RequestResult.UnknownError -> {
+                    _navigationEvent.send(
+                        NavigationEvent.ShowToast("Unknown Error ${result.errorCause}")
+                    )
+                }
             }
         }
-    }
-
-    companion object{
-        private const val TAG = "Login ViewModel"
     }
 }

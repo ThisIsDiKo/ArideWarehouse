@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
@@ -66,7 +67,6 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
     private val goodsAdapter: OrderGoodsAdapter by lazy {
         OrderGoodsAdapter(
             onCheckedChanged = {index, state ->
-                Log.e("Order Details Fragment", "Good in position $index check is $state")
                 viewModel.setCheckedStateToGoods(index, state)
             }
         )
@@ -97,7 +97,6 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
 
         binding.orderUploadToServerBtn.setOnClickListener {
             viewModel.uploadToServer(
-                orderName = orderName,
                 comment = binding.orderCommentEditTextView.text.toString(),
                 workManager = workManager
             )
@@ -115,10 +114,9 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
         viewModel.loadOrder(orderName)
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         val l = cameraViewModel.getImagesPaths()
-        Log.e("", "Got image paths from cameraViewModel: $l")
         if (l.isNotEmpty()){
             l.map {imagePath ->
                 val orderImage = OrderImage(
@@ -160,9 +158,15 @@ class OrderDetailsFragment: Fragment(R.layout.fragment_order_details) {
                 viewModel.navigationEvent.collectLatest {
                     when(it){
                         is NavigationEvent.Navigate -> {
-                            if (it.destination == "Details"){
+                            if (it.destination == NavigationConstants.IMAGE_PREVIEW_SCREEN){
                                 findNavController().navigate(R.id.action_orderDetailsFragment_to_imagePreviewFragment, it.bundle)
                             }
+                            if (it.destination == NavigationConstants.LOGIN_SCREEN){
+                                findNavController().navigate(R.id.action_orderDetailsFragment_to_loginFragment)
+                            }
+                        }
+                        is NavigationEvent.ShowToast -> {
+                            Toast.makeText(requireActivity(), it.message, Toast.LENGTH_LONG).show()
                         }
                         else -> {
 

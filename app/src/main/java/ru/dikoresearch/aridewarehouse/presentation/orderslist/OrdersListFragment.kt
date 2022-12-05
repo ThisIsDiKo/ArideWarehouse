@@ -2,7 +2,6 @@ package ru.dikoresearch.aridewarehouse.presentation.orderslist
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -18,6 +17,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.dikoresearch.aridewarehouse.R
 import ru.dikoresearch.aridewarehouse.databinding.FragmentOrdersListBinding
+import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationConstants
 import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationEvent
 import ru.dikoresearch.aridewarehouse.presentation.utils.getAppComponent
 import kotlin.properties.Delegates
@@ -88,10 +88,10 @@ class OrdersListFragment: Fragment(R.layout.fragment_orders_list) {
                 viewModel.navigationEvent.collectLatest{
                     when(it){
                         is NavigationEvent.Navigate -> {
-                            if (it.destination == "Login"){
+                            if (it.destination == NavigationConstants.LOGIN_SCREEN){
                                 findNavController().navigate(R.id.action_ordersListFragment_to_loginFragment)
                             }
-                            else if (it.destination == "Details"){
+                            else if (it.destination == NavigationConstants.DETAILS_SCREEN){
                                 findNavController().navigate(R.id.action_ordersListFragment_to_orderDetailsFragment, it.bundle)
                             }
                         }
@@ -184,7 +184,4 @@ class OrdersListFragment: Fragment(R.layout.fragment_orders_list) {
 
     }
 
-    companion object {
-        const val TAG = "List Of orders Fragment"
-    }
 }

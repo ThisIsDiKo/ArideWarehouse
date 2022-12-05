@@ -6,15 +6,13 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.graphics.BitmapFactory
-import android.net.Uri
-import android.os.Environment
-import android.util.Log
 import androidx.exifinterface.media.ExifInterface
 import androidx.work.*
 import ru.dikoresearch.aridewarehouse.R
 import ru.dikoresearch.aridewarehouse.domain.repository.WarehouseRepository
+import ru.dikoresearch.aridewarehouse.domain.repository.requests.RequestResult
 import ru.dikoresearch.aridewarehouse.presentation.utils.rotateImage
-import java.io.InputStream
+
 
 class ImageUploadWorker(
     appContext: Context,
@@ -96,11 +94,29 @@ class ImageUploadWorker(
                 }
 
                 val rotatedBitmap = rotateImage(bitmap, angle.toFloat())
-                warehouseRepository.uploadImage(
+                val result = warehouseRepository.uploadImage(
                     orderId = orderId,
                     imageName = imageUri.split("/").last(),
                     image = rotatedBitmap
                 )
+
+                when(result){
+                    is RequestResult.Success -> {
+
+                    }
+                    is RequestResult.HttpError -> {
+                        val outputData = workDataOf(WORKER_OUTPUT_DATA_KEY to "Http error ${result.code}")
+                        return Result.failure(outputData)
+                    }
+                    is RequestResult.UnknownError -> {
+                        val outputData = workDataOf(WORKER_OUTPUT_DATA_KEY to "Unknown error ${result.errorCause}")
+                        return Result.failure(outputData)
+                    }
+                    is RequestResult.Unauthorized -> {
+                        val outputData = workDataOf(WORKER_OUTPUT_DATA_KEY to "Auth token is expired")
+                        return Result.failure(outputData)
+                    }
+                }
             }
 
             val outputData = workDataOf(WORKER_OUTPUT_DATA_KEY to WORKER_OUTPUT_DATA_SUCCESS)
@@ -113,7 +129,6 @@ class ImageUploadWorker(
     }
 
     companion object {
-        const val TAG = "Image Upload Worker"
 
         const val WORKER_ORDER_ID_KEY = "WORKER_ORDER_ID_KEY"
         const val WORKER_IMAGE_NAME_KEY = "WORKER_IMAGE_NAME_KEY"

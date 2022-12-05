@@ -24,9 +24,16 @@ android {
     }
 
     buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+
+            buildConfigField "String", "SERVER_URL", DebugServerBaseUrl
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+            buildConfigField "String", "SERVER_URL", ServerBaseUrl
         }
     }
     compileOptions {

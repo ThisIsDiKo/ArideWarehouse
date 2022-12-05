@@ -1,15 +1,28 @@
 package ru.dikoresearch.aridewarehouse.presentation.utils
 
+import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import ru.dikoresearch.aridewarehouse.App
+import ru.dikoresearch.aridewarehouse.MainActivity
 import ru.dikoresearch.aridewarehouse.di.AppComponent
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 fun Fragment.getAppComponent() = requireContext().applicationContext.appComponent
+
+fun Activity.hideKeyboard() {
+    val imm = (this as MainActivity).getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+    val view = this.currentFocus
+
+    view?.let{ v ->
+        imm.hideSoftInputFromWindow(v.windowToken, 0)
+    }
+
+}
 
 fun View.gone(){
     this.visibility = View.GONE

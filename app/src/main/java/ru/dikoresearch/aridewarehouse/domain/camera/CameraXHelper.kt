@@ -1,20 +1,13 @@
 package ru.dikoresearch.aridewarehouse.domain.camera
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.util.DisplayMetrics
-import android.util.Log
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
-import com.google.mlkit.vision.barcode.BarcodeScanner
-import com.google.mlkit.vision.barcode.BarcodeScannerOptions
-import com.google.mlkit.vision.barcode.BarcodeScanning
-import com.google.mlkit.vision.barcode.common.Barcode
-import com.google.mlkit.vision.common.InputImage
 import java.util.concurrent.Executors
 import kotlin.math.abs
 
@@ -23,9 +16,7 @@ class CameraXHelper(
     private val previewView: PreviewView,
     private val builderPreview: Preview.Builder? = null,
     private val imageAnalyzer: ImageAnalysis.Analyzer? = null,
-    private val builderImageCapture: ImageCapture.Builder? = null,
     private val onError: ((Throwable) -> Unit)? = null,
-    private val onBarCodeDetected: (String) -> Unit
 ) {
 
     private val context by lazy {
@@ -62,12 +53,6 @@ class CameraXHelper(
     private fun createImageAnalysis(): ImageAnalysis?{
         if (imageAnalyzer == null) return null
 
-        val options = BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
-            .build()
-
-        val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient(options)
-
         val analysisUseCase = ImageAnalysis.Builder()
             .setImageQueueDepth(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
             .setTargetAspectRatio(aspectRatio())
@@ -92,7 +77,7 @@ class CameraXHelper(
 
         val cameraProvideFeature = ProcessCameraProvider.getInstance(context)
 
-        cameraProvideFeature.addListener(Runnable {
+        cameraProvideFeature.addListener({
             try {
                 val cameraProvider: ProcessCameraProvider = cameraProvideFeature.get()
                 imagePreview = createImagePreview()

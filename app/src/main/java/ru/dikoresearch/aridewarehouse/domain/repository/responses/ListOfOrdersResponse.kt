@@ -1,7 +1,7 @@
 package ru.dikoresearch.aridewarehouse.domain.repository.responses
 
-import ru.dikoresearch.aridewarehouse.domain.entities.OrderInfo
+import ru.dikoresearch.aridewarehouse.domain.entities.Order
 
 data class ListOfOrdersResponse(
-    val orders: List<OrderInfo>
+    val orders: List<Order>
 )

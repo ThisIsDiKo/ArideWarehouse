@@ -3,7 +3,6 @@ package ru.dikoresearch.aridewarehouse.domain.camera
 import android.app.Activity
 import android.net.Uri
 import android.util.DisplayMetrics
-import android.widget.TextView
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
@@ -66,7 +65,7 @@ class CameraXCaptureHelper(
     private fun createImageCapture() =
         (builderImageCapture ?: ImageCapture.Builder()
             .setTargetAspectRatio(aspectRatio()))
-            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY) //TODO maybe change to maximum quality
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
 
     private fun startCamera(){
@@ -75,7 +74,7 @@ class CameraXCaptureHelper(
             .build()
 
         val cameraProvideFuture = ProcessCameraProvider.getInstance(context)
-        cameraProvideFuture.addListener(Runnable {
+        cameraProvideFuture.addListener({
             try {
                 val cameraProvider: ProcessCameraProvider = cameraProvideFuture.get()
                 imagePreview = createImagePreview()
@@ -98,6 +97,7 @@ class CameraXCaptureHelper(
     }
 
     private fun aspectRatio(): Int {
+        @Suppress("DEPRECATION")
         val metrics = DisplayMetrics().also { previewView.display.getRealMetrics(it) }
         val width = metrics.widthPixels
         val height = metrics.heightPixels
@@ -111,7 +111,7 @@ class CameraXCaptureHelper(
     }
 
     fun takePicture(){
-        val dir = filesDirectory ?: context.cacheDir
+        val dir = filesDirectory
         if (!dir.exists()) dir.mkdirs()
 
         val fileName = "IMG_" + orderName + "_${System.currentTimeMillis()}"+".jpeg"

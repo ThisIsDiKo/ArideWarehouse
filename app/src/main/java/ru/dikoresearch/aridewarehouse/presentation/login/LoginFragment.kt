@@ -1,25 +1,20 @@
 package ru.dikoresearch.aridewarehouse.presentation.login
 
 import android.os.Bundle
-import android.util.Log
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.dikoresearch.aridewarehouse.R
 import ru.dikoresearch.aridewarehouse.databinding.FragmentLoginBinding
-import ru.dikoresearch.aridewarehouse.presentation.utils.NavigationEvent
-import ru.dikoresearch.aridewarehouse.presentation.utils.getAppComponent
-import ru.dikoresearch.aridewarehouse.presentation.utils.gone
-import ru.dikoresearch.aridewarehouse.presentation.utils.visible
+import ru.dikoresearch.aridewarehouse.presentation.utils.*
 
 class LoginFragment: Fragment(R.layout.fragment_login) {
     private lateinit var binding: FragmentLoginBinding
@@ -36,11 +31,16 @@ class LoginFragment: Fragment(R.layout.fragment_login) {
 
         binding = FragmentLoginBinding.inflate(inflater, container, false)
 
-        binding.loginBtn.setOnClickListener {
-            val username = binding.etUsername.text.toString()
-            val password = binding.etPassword.text.toString()
+        binding.etPassword.setOnKeyListener { _, keyCode, event ->
+            if ((event.action == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)){
+                loginAction()
+                return@setOnKeyListener true
+            }
+            return@setOnKeyListener false
+        }
 
-            viewModel.login(username, password)
+        binding.loginBtn.setOnClickListener {
+            loginAction()
         }
 
         return binding.root
@@ -55,7 +55,7 @@ class LoginFragment: Fragment(R.layout.fragment_login) {
                 viewModel.navigationEvent.collect{
                     when(it){
                         is NavigationEvent.Navigate -> {
-                            if (it.destination == "ListFragment") {
+                            if (it.destination == NavigationConstants.ORDERS_LIST_SCREEN) {
                                 findNavController().navigate(R.id.action_loginFragment_to_ordersListFragment)
                             }
                         }
@@ -91,5 +91,14 @@ class LoginFragment: Fragment(R.layout.fragment_login) {
             }
         }
 
+    }
+
+    private fun loginAction(){
+        val username = binding.etUsername.text.toString()
+        val password = binding.etPassword.text.toString()
+
+        viewModel.login(username, password)
+
+        requireActivity().hideKeyboard()
     }
 }
